@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 
 type Props = {
   userImage: string | null
+  
   onDelete?: any
   onUpload: any
 }
@@ -44,7 +45,7 @@ const ProfilePicture = ({ userImage, onDelete, onUpload }: Props) => {
         (
           <>
           <div className="flex h-[30vh] flex-col items-center justify-center">
-            <UploadCareButton  />
+            <UploadCareButton  onUpload={onUpload}/>
          </div>
 
           </>)}
