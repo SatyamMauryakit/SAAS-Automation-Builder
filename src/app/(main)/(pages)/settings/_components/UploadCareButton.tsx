@@ -1,48 +1,21 @@
-'use client'
-import React, { useEffect, useRef } from 'react'
-import * as LR from '@uploadcare/blocks'
-import { useRouter } from 'next/navigation'
+"use client"
 
-type Props = {
-  onUpload: (e: string) => any
-}
+import { FileUploaderRegular } from "@uploadcare/react-uploader/next"
+import "@uploadcare/react-uploader/core.css"
 
-LR.registerBlocks(LR)
-
-const UploadCareButton = ({ onUpload }: Props) => {
-  const router = useRouter()
-  const ctxProviderRef = useRef<
-    typeof LR.UploadCtxProvider.prototype & LR.UploadCtxProvider
-  >(null)
-
-  useEffect(() => {
-    const handleUpload = async (e: any) => {
-      const file = await onUpload(e.detail.cdnUrl)
-      if (file) {
-        router.refresh()
-      }
-    }
-    ctxProviderRef.current.addEventListener('file-upload-success', handleUpload)
-  }, [])
-
+export default function UploadCareButton() {
   return (
-    <div>
-      <lr-config
-        ctx-name="my-uploader"
-        pubkey="a9428ff5ff90ae7a64eb"
-      />
+    <div className="p-4 flex flex-col justify-center items-center border rounded-md border-gray-300 dark:border-gray-700">
+      <h2 className="text-lg font-medium text-gray-800 dark:text-gray-100 mb-3">
+        Upload File
+      </h2>
 
-      <lr-file-uploader-regular
-        ctx-name="my-uploader"
-        css-src={`https://cdn.jsdelivr.net/npm/@uploadcare/blocks@0.35.2/web/lr-file-uploader-regular.min.css`}
-      />
-
-      <lr-upload-ctx-provider
-        ctx-name="my-uploader"
-        ref={ctxProviderRef}
+      <FileUploaderRegular
+        pubkey="2175e29c44c4aa80078e"
+        sourceList="local, camera, gdrive"
+        classNameUploader="uc-light dark:uc-dark"
       />
     </div>
   )
 }
 
-export default UploadCareButton

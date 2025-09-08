@@ -66,7 +66,7 @@ const ProfileForm = () => {
               <FormControl>
                 <Input
                   {...field}
-                  disabled={true}
+                  disabled={isLoading}
                   placeholder="Email"
                   type="email"
                 />
