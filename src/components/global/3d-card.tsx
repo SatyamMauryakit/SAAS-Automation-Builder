@@ -1,7 +1,6 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
 import React, {
   createContext,
   useState,
@@ -10,6 +9,7 @@ import React, {
   useEffect,
 } from 'react'
 
+// Context to track mouse enter state
 const MouseEnterContext = createContext<
   [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined
 >(undefined)
@@ -35,20 +35,23 @@ export const CardContainer = ({
     containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`
   }
 
-  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseEnter = () => {
     setIsMouseEntered(true)
-    if (!containerRef.current) return
   }
 
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseLeave = () => {
     if (!containerRef.current) return
     setIsMouseEntered(false)
     containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`
   }
+
   return (
     <MouseEnterContext.Provider value={[isMouseEntered, setIsMouseEntered]}>
       <div
-        className={cn('flex items-center justify-center', containerClassName)}
+        className={cn(
+          'flex items-center justify-center p-6',
+          containerClassName
+        )}
         style={{
           perspective: '1000px',
         }}
@@ -59,7 +62,7 @@ export const CardContainer = ({
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           className={cn(
-            'flex items-center justify-center relative transition-all duration-200 ease-linear',
+            'relative transition-all duration-200 ease-linear rounded-2xl shadow-xl bg-white dark:bg-neutral-900',
             className
           )}
           style={{
@@ -83,7 +86,7 @@ export const CardBody = ({
   return (
     <div
       className={cn(
-        'h-96 w-96 [transform-style:preserve-3d]  [&>*]:[transform-style:preserve-3d]',
+        'h-96 w-72 rounded-2xl overflow-hidden [transform-style:preserve-3d] [&>*]:[transform-style:preserve-3d]',
         className
       )}
     >
@@ -124,7 +127,14 @@ export const CardItem = ({
   const handleAnimations = () => {
     if (!ref.current) return
     if (isMouseEntered) {
-      ref.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`
+      ref.current.style.transform = `
+        translateX(${typeof translateX === 'number' ? `${translateX}px` : translateX})
+        translateY(${typeof translateY === 'number' ? `${translateY}px` : translateY})
+        translateZ(${typeof translateZ === 'number' ? `${translateZ}px` : translateZ})
+        rotateX(${typeof rotateX === 'number' ? `${rotateX}deg` : rotateX})
+        rotateY(${typeof rotateY === 'number' ? `${rotateY}deg` : rotateY})
+        rotateZ(${typeof rotateZ === 'number' ? `${rotateZ}deg` : rotateZ})
+      `
     } else {
       ref.current.style.transform = `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`
     }
@@ -133,7 +143,7 @@ export const CardItem = ({
   return (
     <Tag
       ref={ref}
-      className={cn('w-fit transition duration-200 ease-linear', className)}
+      className={cn('transition duration-300 ease-linear', className)}
       {...rest}
     >
       {children}
@@ -141,11 +151,11 @@ export const CardItem = ({
   )
 }
 
-// Create a hook to use the context
+// Hook to use context
 export const useMouseEnter = () => {
   const context = useContext(MouseEnterContext)
   if (context === undefined) {
-    throw new Error('useMouseEnter must be used within a MouseEnterProvider')
+    throw new Error('useMouseEnter must be used within a CardContainer')
   }
   return context
 }

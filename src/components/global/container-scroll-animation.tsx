@@ -20,14 +20,14 @@ export const ContainerScroll = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: containerRef,
+    offset: ['start start', 'end start'],
   })
+
   const [isMobile, setIsMobile] = useState(false)
 
   // ✅ Handle responsive logic
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768)
-    }
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
@@ -38,18 +38,18 @@ export const ContainerScroll = ({
   const scale = useTransform(
     scrollYProgress,
     [0, 1],
-    isMobile ? [0.7, 0.9] : [1.05, 1]
+    isMobile ? [0.85, 0.95] : [1.05, 1]
   )
-  const translate = useTransform(scrollYProgress, [0, 1], [0, -100])
+  const translate = useTransform(scrollYProgress, [0, 1], [0, -120])
 
   return (
     <div
       ref={containerRef}
-      className="relative flex h-[80rem] items-center justify-center p-20"
+      className="relative flex min-h-[120vh] items-center justify-center px-6"
     >
       <div
-        className="relative w-full py-40"
-        style={{ perspective: '1000px' }}
+        className="relative w-full py-32"
+        style={{ perspective: '1200px' }}
       >
         <Header translate={translate} titleComponent={titleComponent} />
         <Card rotate={rotate} scale={scale} translate={translate} />
@@ -71,7 +71,7 @@ export const Header = ({
   return (
     <motion.div
       style={{ translateY: translate }}
-      className="max-w-5xl mx-auto text-center"
+      className="max-w-4xl mx-auto mb-12 text-center"
     >
       {titleComponent}
     </motion.div>
@@ -97,18 +97,18 @@ export const Card = ({
         scale,
         translateY: translate,
         boxShadow:
-          '0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003',
+          '0 10px 25px rgba(0,0,0,0.25), 0 40px 60px rgba(0,0,0,0.15)',
       }}
-      className="mx-auto -mt-12 h-[30rem] w-full max-w-5xl rounded-[30px] bg-[#222222] p-6 shadow-2xl md:h-[40rem]"
+      className="relative mx-auto -mt-10 h-[28rem] w-full max-w-5xl rounded-[24px] bg-neutral-900 p-4 md:h-[38rem]"
     >
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-gray-100 p-4 transition-all">
+      <div className="relative h-full w-full overflow-hidden rounded-2xl">
         <Image
           src="/temp-banner.png"
-          alt="bannerImage"
+          alt="banner image"
           fill
           priority
           sizes="(max-width: 768px) 100vw, 800px"
-          className="rounded-2xl border-8 object-cover"
+          className="rounded-2xl object-cover border-4 border-white/10"
         />
       </div>
     </motion.div>

@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { UserButton } from '@clerk/nextjs'
 
 
 
@@ -51,6 +52,7 @@ const InfoBar = () => {
           <TooltipContent>
             <p>Guide</p>
           </TooltipContent>
+          <UserButton/>
         </Tooltip>
       </TooltipProvider>
     

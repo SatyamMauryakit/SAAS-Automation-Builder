@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import {
+  ClerkProvider,
+ 
+} from '@clerk/nextjs'
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -24,6 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+      <ClerkProvider>
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${dmSans.variable} ${dmMono.variable} antialiased`}
@@ -38,5 +43,6 @@ export default function RootLayout({
           </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
