@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "node-api" // ✅ required for Bun on Windows
 }
 
 datasource db {
@@ -11,17 +9,18 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-
-  clerkId      String  @unique
-  name         String?
-  email        String  @unique
+  id        String   @id @default(cuid())  // ✅ use String cuid() for consistency
+  clerkId   String   @unique
+  name      String?
+  email     String   @unique
   profileImage String?
-  tier         String? @default("Free")
-  credits      String? @default("10")
+  logo      String?
+  tier      String?  @default("Free")
+  credits   String?  @default("10")
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   localGoogleId    String?  @unique
   googleResourceId String?  @unique
 
@@ -45,20 +44,22 @@ model LocalGoogleCredential {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
 }
 
 model DiscordWebhook {
-  id          String        @id @default(uuid())
-  webhookId   String        @unique
-  url         String        @unique
-  name        String
-  guildName   String
-  guildId     String
-  channelId   String        @unique
-  user        User          @relation(fields: [userId], references: [clerkId])
-  userId      String
+  id        String @id @default(uuid())
+  webhookId String @unique
+  url       String @unique
+  name      String
+  guildName String
+  guildId   String
+  channelId String @unique
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
   connections Connections[]
 }
 
@@ -73,34 +74,41 @@ model Slack {
   teamId           String
   teamName         String
 
-  User        User          @relation(fields: [userId], references: [clerkId])
-  userId      String
+  userId String
+  User   User @relation(fields: [userId], references: [id])
+
   connections Connections[]
 }
 
 model Notion {
-  id            String        @id @default(uuid())
-  accessToken   String        @unique
-  workspaceId   String        @unique
-  databaseId    String        @unique
+  id            String @id @default(uuid())
+  accessToken   String @unique
+  workspaceId   String @unique
+  databaseId    String @unique
   workspaceName String
   workspaceIcon String
-  User          User          @relation(fields: [userId], references: [clerkId])
-  userId        String
-  connections   Connections[]
+
+  userId String
+  User   User @relation(fields: [userId], references: [id])
+
+  connections Connections[]
 }
 
 model Connections {
-  id               String          @id @default(uuid())
-  type             String          @unique
-  DiscordWebhook   DiscordWebhook? @relation(fields: [discordWebhookId], references: [id])
+  id String @id @default(uuid())
+
+  type   String // ✅ removed @unique so multiple connections allowed
+  userId String?
+  User   User? @relation(fields: [userId], references: [id])
+
   discordWebhookId String?
-  Notion           Notion?         @relation(fields: [notionId], references: [id])
-  notionId         String?
-  User             User?           @relation(fields: [userId], references: [clerkId])
-  userId           String?
-  Slack            Slack?          @relation(fields: [slackId], references: [id])
-  slackId          String?
+  DiscordWebhook   DiscordWebhook? @relation(fields: [discordWebhookId], references: [id])
+
+  notionId String?
+  Notion   Notion? @relation(fields: [notionId], references: [id])
+
+  slackId String?
+  Slack   Slack? @relation(fields: [slackId], references: [id])
 }
 
 model Workflows {
@@ -119,6 +127,7 @@ model Workflows {
   cronPath          String?
   publish           Boolean? @default(false)
   description       String
-  User              User     @relation(fields: [userId], references: [clerkId])
-  userId            String
+
+  userId String
+  User   User @relation(fields: [userId], references: [id])
 }

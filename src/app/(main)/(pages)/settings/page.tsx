@@ -1,52 +1,106 @@
-
-import ProfileForm from '@/components/forms/profile-form'
-import React from 'react'
-import ProfilePicture from './_components/profile-picture'
-import { db } from '@/lib/db'
-import { currentUser, User } from '@clerk/nextjs/server'
-
-
+import ProfileForm from "@/components/forms/profile-form";
+import React from "react";
+import ProfilePicture from "./_components/profile-picture";
+import { db } from "@/lib/db";
+import { currentUser } from "@clerk/nextjs/server";
 
 const SettingsPage = async () => {
+  const authUser = await currentUser();
+  if (!authUser) return null;
 
-  const authUser = await currentUser()
-  if (!authUser) return null
-
-  const user = await db.user.findUnique({
+  const user = await db.user.upsert({
     where: {
-      clerkId: authUser?.id,
+      clerkId: authUser.id,
     },
-  })
+    update: {},
+    create: {
+      clerkId: authUser.id,
+      email:
+        authUser.primaryEmailAddress?.emailAddress ||
+        authUser.emailAddresses?.[0]?.emailAddress ||
+        `${authUser.id}@example.com`,
+      name:
+        authUser.fullName || authUser.firstName || authUser.username || null,
+      profileImage: authUser.imageUrl || null,
+    },
+  });
+
+  const onUpdate = async (name: string) => {
+    "use server";
+    const auth = await currentUser();
+    if (!auth) return null;
+    const response = await db.user.upsert({
+      where: {
+        clerkId: auth.id,
+      },
+      update: {
+        name,
+      },
+      create: {
+        clerkId: auth.id,
+        email:
+          auth.primaryEmailAddress?.emailAddress ||
+          auth.emailAddresses?.[0]?.emailAddress ||
+          `${auth.id}@example.com`,
+        name,
+        profileImage: auth.imageUrl || null,
+      },
+    });
+    return response;
+  };
 
   const removeProfileImage = async () => {
-    'use server'
-    const response = await db.user.update({
+    "use server";
+    const auth = await currentUser();
+    if (!auth) return false;
+    await db.user.upsert({
       where: {
-        clerkId: authUser?.id || '',
+        clerkId: auth.id,
       },
-      data: {
-        profileImage: '',
+      update: {
+        profileImage: "",
       },
-    })
-    return response
-  }
+      create: {
+        clerkId: auth.id,
+        email:
+          auth.primaryEmailAddress?.emailAddress ||
+          auth.emailAddresses?.[0]?.emailAddress ||
+          `${auth.id}@example.com`,
+        name: auth.fullName || auth.firstName || auth.username || null,
+        profileImage: "",
+      },
+    });
+    return true;
+  };
 
-   const uploadProfileImage = async (image: string) => {
-    'use server'
-    const id = authUser.id
-    const response = await db.user.update({
+  // Removed unused logo handlers
+
+  const uploadProfileImage = async (image: string) => {
+    "use server";
+    const auth = await currentUser();
+    if (!auth) return;
+    await db.user.upsert({
       where: {
-        clerkId: id,
+        clerkId: auth.id,
       },
-      data: {
+      update: {
         profileImage: image,
       },
-    })
-
-    return response
-  }
+      create: {
+        clerkId: auth.id,
+        email:
+          auth.primaryEmailAddress?.emailAddress ||
+          auth.emailAddresses?.[0]?.emailAddress ||
+          `${auth.id}@example.com`,
+        name: auth.fullName || auth.firstName || auth.username || null,
+        profileImage: image,
+      },
+    });
+    return;
+  };
   return (
-    <div className='flex flex-col gap-4'><h1 className="sticky top-0 z-[10] flex items-center justify-between border-b bg-background/50 p-6 text-4xl backdrop-blur-lg">
+    <div className="flex flex-col gap-4">
+      <h1 className="sticky top-0 z-[10] flex items-center justify-between border-b bg-background/100 p-6 text-4xl backdrop-blur-lg ">
         <span>Settings</span>
       </h1>
       <div className="flex flex-col gap-10 p-6">
@@ -56,25 +110,19 @@ const SettingsPage = async () => {
             Add or update your information
           </p>
         </div>
-       <ProfilePicture
-          onDelete={removeProfileImage}
-          userImage={user?.profileImage || ''}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <ProfilePicture
+            title="Profile Image"
+            onDelete={removeProfileImage}
+            userImage={user?.profileImage || ""}
+            onUpload={uploadProfileImage}
+          />
+        </div>
 
-          onUpload={uploadProfileImage}
-        />
-
-        <ProfileForm
-          
-        />
-
-
+        <ProfileForm user={user} onUpdate={onUpdate} />
       </div>
+    </div>
+  );
+};
 
-      
-      
-      
-      </div>
-  )
-}
-
-export default SettingsPage
+export default SettingsPage;
