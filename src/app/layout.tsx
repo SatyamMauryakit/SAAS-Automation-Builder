@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
-import {
-  ClerkProvider,
- 
-} from '@clerk/nextjs'
+import { ClerkProvider } from "@clerk/nextjs";
+import ModalProvider from "@/providers/modal-provider"; // ⬅️ import your modal provider
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -28,21 +26,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <ClerkProvider>
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${dmSans.variable} ${dmMono.variable} antialiased`}
-      >
-       <ThemeProvider
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${dmSans.variable} ${dmMono.variable} antialiased`}>
+          <ThemeProvider
             attribute="class"
             defaultTheme="dark"
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <ModalProvider>
+              {children}
+            </ModalProvider>
           </ThemeProvider>
-      </body>
-    </html>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

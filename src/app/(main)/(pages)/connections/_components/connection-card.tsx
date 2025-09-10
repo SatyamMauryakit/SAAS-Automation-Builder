@@ -48,26 +48,29 @@ const ConnectionCard = ({
 
       {/* Connect Button */}
       <div className="flex items-center justify-end">
-        <Link
-          href="#"
-          className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-white font-semibold shadow hover:from-blue-600 hover:to-blue-700 transition-all duration-200"
-        >
-          Connect
-        </Link>
+        
 
         {/* Example for connected state (commented) */}
-        {/* {connected?.[type] ? (
+         {/* {connected?.[type] ? (
           <div className="rounded-lg border-2 border-green-500 px-4 py-2 font-bold text-green-600">
             Connected
           </div>
-        ) : (
+        ) : ( */}
           <Link
-            href="#"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700 transition-all duration-200"
+            href={
+              title == 'Discord'
+                ? process.env.NEXT_PUBLIC_DISCORD_REDIRECT!
+                : title == 'Notion'
+                ? process.env.NEXT_PUBLIC_NOTION_AUTH_URL!
+                : title == 'Slack'
+                ? process.env.NEXT_PUBLIC_SLACK_REDIRECT!
+                : '#'
+            }
+             className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 text-white font-semibold shadow hover:from-blue-600 hover:to-blue-700 transition-all duration-200"
           >
             Connect
           </Link>
-        )} */}
+        {/* )}  */}
       </div>
     </Card>
   );

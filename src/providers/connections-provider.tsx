@@ -1,70 +1,73 @@
 'use client'
+import { createContext, useContext, useState } from 'react'
 
-import { createContext, useContext, useState, ReactNode, Dispatch, SetStateAction } from 'react'
-
-// Node types
-type DiscordNode = {
-  webhookURL: string
-  content: string
-  webhookName: string
-  guildName: string
-}
-
-type GoogleNode = Record<string, any>[] // adjust type as needed
-
-type NotionNode = {
-  accessToken: string
-  databaseId: string
-  workspaceName: string
-  content: string
-}
-
-type SlackNode = {
-  appId: string
-  authedUserId: string
-  authedUserToken: string
-  slackAccessToken: string
-  botUserId: string
-  teamId: string
-  teamName: string
-  content: string
-}
-
-type WorkflowTemplate = {
-  discord?: string
-  notion?: string
-  slack?: string
-}
-
-// Context type
 export type ConnectionProviderProps = {
-  discordNode: DiscordNode
-  setDiscordNode: Dispatch<SetStateAction<DiscordNode>>
-  googleNode: GoogleNode
-  setGoogleNode: Dispatch<SetStateAction<GoogleNode>>
-  notionNode: NotionNode
-  setNotionNode: Dispatch<SetStateAction<NotionNode>>
-  slackNode: SlackNode
-  setSlackNode: Dispatch<SetStateAction<SlackNode>>
-  workflowTemplate: WorkflowTemplate
-  setWorkFlowTemplate: Dispatch<SetStateAction<WorkflowTemplate>>
+  discordNode: {
+    webhookURL: string
+    content: string
+    webhookName: string
+    guildName: string
+  }
+  setDiscordNode: React.Dispatch<React.SetStateAction<any>>
+  googleNode: {}[]
+  setGoogleNode: React.Dispatch<React.SetStateAction<any>>
+  notionNode: {
+    accessToken: string
+    databaseId: string
+    workspaceName: string
+    content: ''
+  }
+  workflowTemplate: {
+    discord?: string
+    notion?: string
+    slack?: string
+  }
+  setNotionNode: React.Dispatch<React.SetStateAction<any>>
+  slackNode: {
+    appId: string
+    authedUserId: string
+    authedUserToken: string
+    slackAccessToken: string
+    botUserId: string
+    teamId: string
+    teamName: string
+    content: string
+  }
+  setSlackNode: React.Dispatch<React.SetStateAction<any>>
+  setWorkFlowTemplate: React.Dispatch<
+    React.SetStateAction<{
+      discord?: string
+      notion?: string
+      slack?: string
+    }>
+  >
   isLoading: boolean
-  setIsLoading: Dispatch<SetStateAction<boolean>>
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-// Props for provider component
 type ConnectionWithChildProps = {
-  children: ReactNode
+  children: React.ReactNode
 }
 
-// Initial values
 const InitialValues: ConnectionProviderProps = {
-  discordNode: { webhookURL: '', content: '', webhookName: '', guildName: '' },
-  setDiscordNode: () => {},
+  discordNode: {
+    webhookURL: '',
+    content: '',
+    webhookName: '',
+    guildName: '',
+  },
   googleNode: [],
-  setGoogleNode: () => {},
-  notionNode: { accessToken: '', databaseId: '', workspaceName: '', content: '' },
-  setNotionNode: () => {},
+  notionNode: {
+    accessToken: '',
+    databaseId: '',
+    workspaceName: '',
+    content: '',
+  },
+  workflowTemplate: {
+    discord: '',
+    notion: '',
+    slack: '',
+  },
   slackNode: {
     appId: '',
     authedUserId: '',
@@ -75,29 +78,29 @@ const InitialValues: ConnectionProviderProps = {
     teamName: '',
     content: '',
   },
-  setSlackNode: () => {},
-  workflowTemplate: { discord: '', notion: '', slack: '' },
-  setWorkFlowTemplate: () => {},
   isLoading: false,
-  setIsLoading: () => {},
+  setGoogleNode: () => undefined,
+  setDiscordNode: () => undefined,
+  setNotionNode: () => undefined,
+  setSlackNode: () => undefined,
+  setIsLoading: () => undefined,
+  setWorkFlowTemplate: () => undefined,
 }
 
-// Create context
-const ConnectionsContext = createContext<ConnectionProviderProps>(InitialValues)
+const ConnectionsContext = createContext(InitialValues)
 const { Provider } = ConnectionsContext
 
-// Provider component
 export const ConnectionsProvider = ({ children }: ConnectionWithChildProps) => {
-  const [discordNode, setDiscordNode] = useState<DiscordNode>(InitialValues.discordNode)
-  const [googleNode, setGoogleNode] = useState<GoogleNode>(InitialValues.googleNode)
-  const [notionNode, setNotionNode] = useState<NotionNode>(InitialValues.notionNode)
-  const [slackNode, setSlackNode] = useState<SlackNode>(InitialValues.slackNode)
-  const [workflowTemplate, setWorkFlowTemplate] = useState<WorkflowTemplate>(
+  const [discordNode, setDiscordNode] = useState(InitialValues.discordNode)
+  const [googleNode, setGoogleNode] = useState(InitialValues.googleNode)
+  const [notionNode, setNotionNode] = useState(InitialValues.notionNode)
+  const [slackNode, setSlackNode] = useState(InitialValues.slackNode)
+  const [isLoading, setIsLoading] = useState(InitialValues.isLoading)
+  const [workflowTemplate, setWorkFlowTemplate] = useState(
     InitialValues.workflowTemplate
   )
-  const [isLoading, setIsLoading] = useState<boolean>(InitialValues.isLoading)
 
-  const values: ConnectionProviderProps = {
+  const values = {
     discordNode,
     setDiscordNode,
     googleNode,
@@ -106,14 +109,16 @@ export const ConnectionsProvider = ({ children }: ConnectionWithChildProps) => {
     setNotionNode,
     slackNode,
     setSlackNode,
-    workflowTemplate,
-    setWorkFlowTemplate,
     isLoading,
     setIsLoading,
+    workflowTemplate,
+    setWorkFlowTemplate,
   }
 
   return <Provider value={values}>{children}</Provider>
 }
 
-// Custom hook
-export const useNodeConnections = () => useContext(ConnectionsContext)
+export const useNodeConnections = () => {
+  const nodeConnection = useContext(ConnectionsContext)
+  return { nodeConnection }
+}
