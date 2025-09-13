@@ -4,9 +4,9 @@ import { useNodeConnections } from '@/providers/connections-provider'
 import { usePathname } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import {
-  onCreateNodesEdges,
+  onCreateNodeTemplate,
   onFlowPublish,
-} from '../_actions/workflow-connections'
+} from '../../_actions/workflow-connections'
 import { toast } from 'sonner'
 
 type Props = {
